@@ -383,7 +383,7 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
---- !u!1 &695206452
+--- !u!1 &703676968
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -391,55 +391,60 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 695206454}
-  - component: {fileID: 695206453}
+  - component: {fileID: 703676970}
+  - component: {fileID: 703676969}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: Gianfranco
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &695206453
+--- !u!114 &703676969
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 695206452}
+  m_GameObject: {fileID: 703676968}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 1af07b58258ec484ca34a70365b4ea04, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Enemy
-  enemyName: 
-  type: 2
-  prefabToPreview: {fileID: 7582321859956301896, guid: 549e246f15c386d419401a005e337f14, type: 3}
+  enemyName: Gianfranco
+  type: 1
+  prefabToPreview: {fileID: 0}
+  xP: 0
+  level: 0
   health: 100
   speed: 5
-  canFly: 1
+  canFly: 0
   flySpeed: 10
   debugColor: {r: 0, g: 0, b: 0, a: 0}
+  normalPrefab: {fileID: 0}
   eliteHealth: 100
   eliteSpeed: 5
-  canSwim: 0
-  swimSpeed: 10
-  eliteDebugColor: {r: 0, g: 0, b: 0, a: 0}
+  canSwim: 1
+  swimSpeed: 53
+  eliteDebugColor: {r: 0.8113208, g: 0.026788909, b: 0.026788909, a: 0}
+  elitePrefab: {fileID: 808984877704855470, guid: 6649d75e3e53ce74a9c6a0511606c4cc, type: 3}
   bossHealth: 100
   bossSpeed: 5
   canDig: 0
-  digDepth: 15
+  digDepth: 50
   bossDebugColor: {r: 0, g: 0, b: 0, a: 0}
---- !u!4 &695206454
+  bossPrefab: {fileID: 0}
+--- !u!4 &703676970
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 695206452}
+  m_GameObject: {fileID: 703676968}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: -0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -494,6 +499,140 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1345881464
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1345881466}
+  - component: {fileID: 1345881465}
+  m_Layer: 0
+  m_Name: Carlos
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1345881465
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1345881464}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1af07b58258ec484ca34a70365b4ea04, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Enemy
+  enemyName: Carlos
+  type: 1
+  prefabToPreview: {fileID: 0}
+  xP: 0
+  level: 0
+  health: 100
+  speed: 5
+  canFly: 0
+  flySpeed: 10
+  debugColor: {r: 0, g: 0, b: 0, a: 0}
+  normalPrefab: {fileID: 0}
+  eliteHealth: 100
+  eliteSpeed: 5
+  canSwim: 1
+  swimSpeed: 52
+  eliteDebugColor: {r: 0, g: 0, b: 0, a: 0}
+  elitePrefab: {fileID: 0}
+  bossHealth: 100
+  bossSpeed: 5
+  canDig: 0
+  digDepth: 50
+  bossDebugColor: {r: 0, g: 0, b: 0, a: 0}
+  bossPrefab: {fileID: 0}
+--- !u!4 &1345881466
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1345881464}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2028043207
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2028043209}
+  - component: {fileID: 2028043208}
+  m_Layer: 0
+  m_Name: Carlos
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2028043208
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2028043207}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1af07b58258ec484ca34a70365b4ea04, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Enemy
+  enemyName: Carlos
+  type: 0
+  prefabToPreview: {fileID: 0}
+  xP: 0
+  level: 0
+  health: 100
+  speed: 5
+  canFly: 0
+  flySpeed: 10
+  debugColor: {r: 0, g: 0, b: 0, a: 0}
+  normalPrefab: {fileID: 0}
+  eliteHealth: 100
+  eliteSpeed: 5
+  canSwim: 0
+  swimSpeed: 10
+  eliteDebugColor: {r: 0, g: 0, b: 0, a: 0}
+  elitePrefab: {fileID: 0}
+  bossHealth: 100
+  bossSpeed: 5
+  canDig: 0
+  digDepth: 50
+  bossDebugColor: {r: 0, g: 0, b: 0, a: 0}
+  bossPrefab: {fileID: 0}
+--- !u!4 &2028043209
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2028043207}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -501,4 +640,6 @@ SceneRoots:
   - {fileID: 330585546}
   - {fileID: 410087041}
   - {fileID: 832575519}
-  - {fileID: 695206454}
+  - {fileID: 2028043209}
+  - {fileID: 1345881466}
+  - {fileID: 703676970}

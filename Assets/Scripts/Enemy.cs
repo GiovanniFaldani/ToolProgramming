@@ -1,4 +1,6 @@
+using Unity.Burst.CompilerServices;
 using UnityEngine;
+//using Unity.Collections;
 
 public enum EnemyType
 {
@@ -9,12 +11,19 @@ public enum EnemyType
 
 public class Enemy : MonoBehaviour
 {
+    [ReadOnly]
     public string enemyName;
     public EnemyType type;
     public GameObject prefabToPreview;
 
+    [ProgressBar(100)]
+    public float xP;
+    public int level = 0;
+
     //--------NORMAL----------
+    [WarningIf(0, "Attenzione, la vita non può andare sotto zero...")]
     public int health = 100;
+    [ClampRange(0, 100)]
     public float speed = 5f;
 
     public bool canFly;

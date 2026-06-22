@@ -12,7 +12,7 @@ public class EnemyEditor : Editor
     {
         Enemy enemy = (Enemy)target;
 
-        //DrawDefaultInspector();
+        DrawDefaultInspector();
 
         EditorGUILayout.Space(10);
 
@@ -23,7 +23,19 @@ public class EnemyEditor : Editor
         GUI.backgroundColor = Color.white;
         enemy.type = (EnemyType)EditorGUILayout.EnumPopup("Enemy Type", enemy.type);
 
+        if (GUILayout.Button("Add 10 xp"))
+        {
+            enemy.xP += 10;
+            if (enemy.xP > 100)
+            {
+                enemy.xP = 0;
+                enemy.level += 1;
+            }
+        }
+
         DisplayEnemyUI(enemy, enemy.type);
+
+
     }
 
     private void DisplayEnemyUI(Enemy enemy, EnemyType type)
@@ -51,7 +63,6 @@ public class EnemyEditor : Editor
                 DisplayPrefabPreview(ref enemy.bossPrefab);
                 break;
         }
-
     }
 
     private void DisplayHPInfo(ref int enemyHP)
