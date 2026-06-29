@@ -13,15 +13,15 @@ public class DeleteEnemyWindow: EditorWindow
 
     private void OnGUI()
     {
-        GUIStyle titleStyle = new GUIStyle();
-        titleStyle.normal.textColor = Color.white;
-        titleStyle.fontStyle = FontStyle.BoldAndItalic;
-        titleStyle.alignment = TextAnchor.MiddleCenter;
-        titleStyle.fontSize = 20;
+        GUIStyle labelStyle = new GUIStyle();
+        labelStyle.normal.textColor = Color.white;
+        labelStyle.fontStyle = FontStyle.BoldAndItalic;
+        labelStyle.alignment = TextAnchor.MiddleCenter;
+        labelStyle.fontSize = 20;
 
         EditorGUILayout.Space(5);
 
-        GUILayout.Label("Delete enemies", titleStyle);
+        GUILayout.Label("Delete enemies", labelStyle);
 
         EditorGUILayout.Space(10);
 
@@ -57,7 +57,7 @@ public class DeleteEnemyWindow: EditorWindow
 
     void DeleteAllEnemies()
     {
-        int group = Undo.GetCurrentGroup();
+        Undo.IncrementCurrentGroup();
         Undo.SetCurrentGroupName("Delete All Enemies");
 
 
@@ -68,12 +68,13 @@ public class DeleteEnemyWindow: EditorWindow
             //DestroyImmediate(en.gameObject);
         }
 
-        Undo.CollapseUndoOperations(group);
+        int groupIndex = Undo.GetCurrentGroup();
+        Undo.CollapseUndoOperations(groupIndex);
     }
 
     void DeleteEnemiesOfType(EnemyType type)
     {
-        int group = Undo.GetCurrentGroup();
+        Undo.IncrementCurrentGroup();
         Undo.SetCurrentGroupName($"Delete Enemies: {type}");
 
         Enemy[] enemies = FindObjectsByType<Enemy>(sortMode: FindObjectsSortMode.None);
@@ -86,6 +87,7 @@ public class DeleteEnemyWindow: EditorWindow
             }
         }
 
-        Undo.CollapseUndoOperations(group);
+        int groupIndex = Undo.GetCurrentGroup();
+        Undo.CollapseUndoOperations(groupIndex);
     }
 }

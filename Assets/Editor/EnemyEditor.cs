@@ -1,12 +1,25 @@
-using UnityEngine;
+using NUnit.Framework;
 //#if UNITY_EDITOR
 using UnityEditor;
+using UnityEngine;
 //#endif
 
 [CustomEditor(typeof(Enemy))]
 public class EnemyEditor : Editor
 {
     private Texture2D previewTexture;
+
+    private void OnSceneGUI()
+    {
+        Enemy enemy = (Enemy)target;
+
+        GUIStyle labelStyle = new GUIStyle();
+        labelStyle.alignment = TextAnchor.MiddleCenter;
+        labelStyle.normal.textColor = Color.red;
+
+        Handles.Label(enemy.transform.position + Vector3.up * 3, enemy.name, labelStyle);
+        Handles.Label(enemy.transform.position + Vector3.up * -3, enemy.type.ToString(), labelStyle);
+    }
 
     public override void OnInspectorGUI()
     {
