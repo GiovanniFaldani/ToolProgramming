@@ -29,7 +29,10 @@ public class PatrolEditorWindow : EditorWindow
         {
             Undo.RecordObject(path, "Add Patrol Point");
 
-            path.points.Add(Vector3.forward);
+            SplinePoint newPoint = new SplinePoint();
+            newPoint.position = Vector3.forward;
+
+            path.points.Add(newPoint);
         }
 
         EditorGUILayout.Space(10f); EditorGUILayout.Space(10f);
