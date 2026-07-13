@@ -15,7 +15,7 @@ EditorBuildSettings:
     path: Assets/Scenes/Placer.unity
     guid: 5547804f34829424f9e9309dd45e1120
   - enabled: 0
-    path: Assets/Scenes/ProprScatterer.unity
+    path: Assets/Scenes/PropScatterer.unity
     guid: 179deb54b6849694093524c4224643b4
   - enabled: 1
     path: Assets/Scenes/SampleScene.unity
