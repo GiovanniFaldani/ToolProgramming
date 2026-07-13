@@ -35,7 +35,7 @@ public class SceneReportExporter : EditorWindow
         // salviamo lo screeenshot
         ScreenCapture.CaptureScreenshot(screenshotPath);
 
-        Repaint();
+        
 
         GameObject[] objects = FindObjectsByType<GameObject>(FindObjectsSortMode.None);
 
