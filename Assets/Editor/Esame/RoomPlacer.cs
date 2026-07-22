@@ -120,7 +120,7 @@ public class RoomPlacer : EditorWindow
 
         Handles.BeginGUI();
 
-        // TODO draw dei bottoni in scena per spawnare prefab
+        // Draw dei bottoni in scena per spawnare prefab
 
         // mi prendo l'evento dell'input
         Event e = Event.current;
@@ -161,7 +161,7 @@ public class RoomPlacer : EditorWindow
                 Repaint();
                 e.Use();
 
-                // TODO istanzia prefab in scena
+                // Istanzia prefab in scena
                 previewObject = (GameObject)PrefabUtility.InstantiatePrefab(selectedPrefab);
 
                 // TODO register this undo when the prefab is PLACED, not spawned
@@ -187,11 +187,11 @@ public class RoomPlacer : EditorWindow
         // raggio che parte dal mouse
         Ray ray = HandleUtility.GUIPointToWorldRay(e.mousePosition);
 
-        Plane roomLevel = new Plane(Vector3.up, new Vector3(0,1,0));
+        Plane roomLevel = new Plane(Vector3.up, Vector3.zero);
 
         if (!roomLevel.Raycast(ray, out float dist)) return;
 
-        Vector3 position = Camera.main.transform.position + (ray.direction.normalized * dist);
+        Vector3 position = ray.GetPoint(dist);
 
         previewObject.transform.position = position;
 
