@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class RoomPlacer : EditorWindow
 {
-    // classe per memorizzare i dati di una cartella di prefab
+    // classe per memorizzare i dati di una cartella di prefab, contiene una lista di prefab (stanze) al suo interno
     private class CategoryData
     {
         public string name;
@@ -22,21 +22,39 @@ public class RoomPlacer : EditorWindow
         ScanFolders();
     }
 
+    // Attiva la placement mode
     private bool isPlacementMode = false;
+
+    // Toggli visibilità del raggio
     private bool radiusVisibility = false;
+
+    // raggio di snap riscontrato anche nella preview
     private float snapRadius = 20f;
+
+    // categoria di stanze selezionata (= numero di porte)
     private CategoryData selectedCategory = null;
+
+    // Tipo di prefab di stanza selezionato
     private GameObject selectedPrefab = null;
+
+    // istanza in scena del prefab selezionato
     private GameObject previewObject = null;
 
+    // se il giocatore sta correntemente piazzando una stanza
+    private bool isPlacing = false;
+
+    // scroll del menu delle stanze
     private Vector2 scrollPos;
 
+    // Lista di categorie di stanze
     private static readonly List<CategoryData> categories = new List<CategoryData>();
     private const string RootFolder = "Assets/Prefab/Rooms";
 
+    // grandezze dell'HUD per selezionare la stanza da piazzare
     private float prefabButtonHeight = 100;
     private float prefabButtonWidth = 200;
 
+    // indice dell'ultima stanza selezionata nella lista della categoria
     private int lastSelectIndex = int.MinValue;
 
     private void OnGUI()
@@ -164,6 +182,8 @@ public class RoomPlacer : EditorWindow
                 // Istanzia prefab in scena
                 previewObject = (GameObject)PrefabUtility.InstantiatePrefab(selectedPrefab);
 
+                isPlacing = true;
+
                 // TODO register this undo when the prefab is PLACED, not spawned
                 Undo.RegisterCreatedObjectUndo(previewObject, "Spawn Room prefab");
 
@@ -172,16 +192,33 @@ public class RoomPlacer : EditorWindow
             GUI.backgroundColor = Color.white;
         }
 
+        // annulla preview o esegue undo con tasto UI
         if (GUILayout.Button("Undo", GUILayout.Width(prefabButtonWidth), GUILayout.Height(prefabButtonHeight)))
         {
-            // TODO chiama funzione di undo
+            if(isPlacing)
+            {
+                ClearPreview();
+                isPlacing = false;
+            }
+            else
+            {
+                Undo.PerformUndo();
+            }
+        }
+
+        // annulla il piazzamento con ctrl+z per consistenza con tasto undo
+        if (e.type == EventType.KeyDown && e.control && e.keyCode == KeyCode.Z && isPlacing)
+        {
+            ClearPreview();
+            isPlacing = false;
+            e.Use();
         }
 
         GUILayout.EndScrollView();
 
         Handles.EndGUI();
 
-        // TODO se preview è istanziata, seguire la posizione del mouse, display raggio snap e funzione di snap
+        // se preview è istanziata, seguire la posizione del mouse, display raggio snap e funzione di snap
         if (previewObject == null) return;
 
         // raggio che parte dal mouse
@@ -195,8 +232,21 @@ public class RoomPlacer : EditorWindow
 
         previewObject.transform.position = position;
 
+        // display raggio di snap
+        if (radiusVisibility) 
+            Handles.DrawWireDisc(position, Vector3.up, snapRadius);
 
+        // rotazione della preview
+        if (e.type == EventType.KeyDown && e.shift && e.keyCode == KeyCode.Q && isPlacing)
+        {
+            RotatePreview(90);
+        }
+        else if (e.type == EventType.KeyDown && e.shift && e.keyCode == KeyCode.E && isPlacing)
+        {
+            RotatePreview(-90);
+        }
 
+        // TODO logica di snap in funzione separata
 
         // refresh della scena
         sceneView.Repaint();
@@ -261,6 +311,13 @@ public class RoomPlacer : EditorWindow
         Debug.Log($"Categories found: {categories.Count}");
     }
 
+    private void RotatePreview(float angle)
+    {
+        if (previewObject == null) return;
+
+        previewObject.transform.rotation *= Quaternion.Euler(0, angle, 0);
+    }
+
     private void ClearPreview()
     {
         // distruggiamo la preview se esiste
@@ -268,6 +325,7 @@ public class RoomPlacer : EditorWindow
         {
             DestroyImmediate(previewObject);
             previewObject = null;
+            lastSelectIndex = int.MinValue;
         }
     }
 
