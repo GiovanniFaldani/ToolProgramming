@@ -125,8 +125,6 @@ public class RoomPlacer : EditorWindow
 
     void OnSceneGUI(SceneView sceneView)
     {
-        Debug.Log("OnSceneGUI tick");
-
         if (!isPlacementMode || selectedCategory == null)
             return;
 
@@ -184,13 +182,15 @@ public class RoomPlacer : EditorWindow
 
                 isPlacing = true;
 
-                // TODO register this undo when the prefab is PLACED, not spawned
+                // TODO Registra l'undo della creazione quando il prefab viene piazzato in scena
                 Undo.RegisterCreatedObjectUndo(previewObject, "Spawn Room prefab");
 
             }
 
             GUI.backgroundColor = Color.white;
         }
+
+        GUILayout.Space(10f);
 
         // annulla preview o esegue undo con tasto UI
         if (GUILayout.Button("Undo", GUILayout.Width(prefabButtonWidth), GUILayout.Height(prefabButtonHeight)))
@@ -246,10 +246,17 @@ public class RoomPlacer : EditorWindow
             RotatePreview(-90);
         }
 
-        // TODO logica di snap in funzione separata
+        // logica di snap in funzione separata
+        Collider[] snappedColliders = { };
+        SnapToClosestCompatibleDoor(ref snappedColliders);
 
-        // refresh della scena
+        if (snappedColliders.Length == 0) return;
+
+        // TODO piazzamento con tasto sinistro e taggamento dei due collider come TakenDoor
+
+        // refresh della scena e editor
         sceneView.Repaint();
+        Repaint();
     }
 
     private void OnDisable()
@@ -318,12 +325,60 @@ public class RoomPlacer : EditorWindow
         previewObject.transform.rotation *= Quaternion.Euler(0, angle, 0);
     }
 
+    private void SnapToClosestCompatibleDoor(ref Collider[] snappedColliders)
+    {
+        if (previewObject == null) return;
+
+        Debug.Log("Attempting snap...");
+
+        // controlla tutte le Collider nel raggio con tag FreeDoor
+        Collider[] collidersInRange = Physics.OverlapSphere(previewObject.transform.position, snapRadius);
+
+        Collider myFreeCollider = null;
+        Collider[] previewColliders = previewObject.GetComponentsInChildren<Collider>();
+        float minDist = float.MaxValue;
+
+        foreach(Collider otherCol in collidersInRange)
+        {
+            if (!otherCol.gameObject.CompareTag("FreeDoor")) continue;
+
+            // controlla la Collider con FreeDoor più vicina posseduta dal previewObject
+            minDist = float.MaxValue;
+
+            foreach (Collider myCol in previewColliders)
+            {
+                if (!myCol.gameObject.CompareTag("FreeDoor")) continue;
+                float currDist = Vector3.Distance(myCol.transform.position, otherCol.transform.position);
+
+                // Controlla che il forward dei due collider sia opposto con dot product = -1 per vedere se si affacciano
+                if (Vector3.Dot(myCol.transform.forward.normalized, otherCol.transform.forward.normalized) == -1 &&
+                    currDist < minDist)
+                {
+                    myFreeCollider = myCol;
+                    minDist = currDist;
+                }
+            }
+
+            // nessun collider della preview è compatibile nel raggio
+            if (myFreeCollider == null) return;
+
+            // snap in modo che le due Collider si sovrappongano
+            Vector3 distVector = otherCol.transform.position - myFreeCollider.transform.position;
+            previewObject.transform.position += distVector;
+
+            Collider[] result = { myFreeCollider,  otherCol };
+            snappedColliders = result;
+            break;
+        }
+    }
+
     private void ClearPreview()
     {
         // distruggiamo la preview se esiste
         if (previewObject != null)
         {
             DestroyImmediate(previewObject);
+            selectedPrefab = null;
             previewObject = null;
             lastSelectIndex = int.MinValue;
         }
