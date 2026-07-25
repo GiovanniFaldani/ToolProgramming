@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -121,10 +122,15 @@ public class RoomPlacer : EditorWindow
 
             GUILayout.Space(10f);
         }
+
+        // repaint della scena e editor
+        SceneView.RepaintAll();
+        Repaint();
     }
 
     void OnSceneGUI(SceneView sceneView)
     {
+        // Disegno le stanze sul lato solo se l'utente ha scelto una categoria
         if (!isPlacementMode || selectedCategory == null)
             return;
 
@@ -136,11 +142,10 @@ public class RoomPlacer : EditorWindow
 
         Handles.BeginGUI();
 
-        // Draw dei bottoni in scena per spawnare prefab
-
         // mi prendo l'evento dell'input
         Event e = Event.current;
 
+        // Draw dei bottoni in scena per spawnare prefab
         // crea uno scrolling menu di ogni prefab nella categoria corrente
         scrollPos = GUILayout.BeginScrollView(scrollPos, GUILayout.MaxHeight(1000));
 
@@ -171,7 +176,7 @@ public class RoomPlacer : EditorWindow
             // quando clicco sul pulsante del prefab, cambio il selezionato e consumo l'input
             if (GUILayout.Button(content, GUILayout.Width(prefabButtonWidth), GUILayout.Height(prefabButtonHeight)))
             {
-                Debug.Log($"Cliccato su: {selectedCategory.prefabNames[i]}");
+                // Debug.Log($"Cliccato su: {selectedCategory.prefabNames[i]}");
                 selectedPrefab = asset;
                 lastSelectIndex = i;
                 Repaint();
@@ -181,10 +186,6 @@ public class RoomPlacer : EditorWindow
                 previewObject = (GameObject)PrefabUtility.InstantiatePrefab(selectedPrefab);
 
                 isPlacing = true;
-
-                // TODO Registra l'undo della creazione quando il prefab viene piazzato in scena
-                Undo.RegisterCreatedObjectUndo(previewObject, "Spawn Room prefab");
-
             }
 
             GUI.backgroundColor = Color.white;
@@ -238,21 +239,22 @@ public class RoomPlacer : EditorWindow
 
         // rotazione della preview
         if (e.type == EventType.KeyDown && e.shift && e.keyCode == KeyCode.Q && isPlacing)
-        {
             RotatePreview(90);
-        }
+
         else if (e.type == EventType.KeyDown && e.shift && e.keyCode == KeyCode.E && isPlacing)
-        {
             RotatePreview(-90);
+
+        // logica di snap
+        List<Collider> snappedColliders = SnapToClosestCompatibleDoor();
+
+        if (snappedColliders.Count == 0) return;
+
+        // piazzamento con tasto sinistro mouse e taggamento dei due collider snappati come TakenDoor
+        if(e.type == EventType.MouseDown && e.keyCode == KeyCode.Mouse0)
+        {
+            PlaceRoom(snappedColliders);
+            e.Use();
         }
-
-        // logica di snap in funzione separata
-        Collider[] snappedColliders = { };
-        SnapToClosestCompatibleDoor(ref snappedColliders);
-
-        if (snappedColliders.Length == 0) return;
-
-        // TODO piazzamento con tasto sinistro e taggamento dei due collider come TakenDoor
 
         // refresh della scena e editor
         sceneView.Repaint();
@@ -325,24 +327,24 @@ public class RoomPlacer : EditorWindow
         previewObject.transform.rotation *= Quaternion.Euler(0, angle, 0);
     }
 
-    private void SnapToClosestCompatibleDoor(ref Collider[] snappedColliders)
+    private List<Collider> SnapToClosestCompatibleDoor()
     {
-        if (previewObject == null) return;
-
-        Debug.Log("Attempting snap...");
+        if (previewObject == null) return new List<Collider>();
 
         // controlla tutte le Collider nel raggio con tag FreeDoor
-        Collider[] collidersInRange = Physics.OverlapSphere(previewObject.transform.position, snapRadius);
-
+        HashSet<Collider> collidersInRange = Physics.OverlapSphere(previewObject.transform.position, snapRadius).ToHashSet();
         Collider myFreeCollider = null;
-        Collider[] previewColliders = previewObject.GetComponentsInChildren<Collider>();
+        HashSet<Collider> previewColliders = previewObject.GetComponentsInChildren<Collider>().ToHashSet();
         float minDist = float.MaxValue;
 
-        foreach(Collider otherCol in collidersInRange)
+        // collidersInRange non deve contenere collider della preview, sottrai il set previewColliders
+        collidersInRange.ExceptWith(previewColliders);
+
+        foreach (Collider otherCol in collidersInRange)
         {
             if (!otherCol.gameObject.CompareTag("FreeDoor")) continue;
 
-            // controlla la Collider con FreeDoor più vicina posseduta dal previewObject
+            // controlla il Collider con FreeDoor più vicino posseduto dal previewObject
             minDist = float.MaxValue;
 
             foreach (Collider myCol in previewColliders)
@@ -359,17 +361,40 @@ public class RoomPlacer : EditorWindow
                 }
             }
 
-            // nessun collider della preview è compatibile nel raggio
-            if (myFreeCollider == null) return;
+            // nessun collider della preview è compatibile con questo, passa al prossimo collider esterno compatibile
+            if (myFreeCollider == null) continue;
 
-            // snap in modo che le due Collider si sovrappongano
+            // snap in modo che i due Collider si sovrappongano
             Vector3 distVector = otherCol.transform.position - myFreeCollider.transform.position;
             previewObject.transform.position += distVector;
 
-            Collider[] result = { myFreeCollider,  otherCol };
-            snappedColliders = result;
-            break;
+            // ritorna i due Collider snappati in modo da taggarli se vengono piazzati
+            return new List<Collider>{ myFreeCollider, otherCol };
         }
+
+        return new List<Collider>();
+    }
+
+    private void PlaceRoom(List<Collider> snappedColliders)
+    {
+        if (previewObject == null) return;
+
+        // Registra l'undo della creazione quando il prefab viene piazzato in scena
+        Undo.RegisterCreatedObjectUndo(previewObject, "Spawn Room prefab");
+
+        // dereference della preview senza eliminare il gameObject sottostante, lo lasciamo dov'è
+        selectedPrefab = null;
+        previewObject = null;
+        lastSelectIndex = int.MinValue;
+
+        foreach(Collider col in snappedColliders)
+        {
+            // registra il cambiamento di tag nello stesso gruppo di Undo così la porta torna libera
+            Undo.RegisterCompleteObjectUndo(col, "Spawn Room prefab");
+            col.gameObject.tag = "TakenDoor";
+        }
+
+        isPlacing = false;
     }
 
     private void ClearPreview()
@@ -381,6 +406,7 @@ public class RoomPlacer : EditorWindow
             selectedPrefab = null;
             previewObject = null;
             lastSelectIndex = int.MinValue;
+            isPlacing = false;
         }
     }
 
