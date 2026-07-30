@@ -51,6 +51,9 @@ public class RoomPlacer : EditorWindow
     private static readonly List<CategoryData> categories = new List<CategoryData>();
     private const string RootFolder = "Assets/Prefab/Rooms";
 
+    // grandezze dei pulsanti nella UI dell'editor
+    private float editorButtonHeight = 40;
+
     // grandezze dell'HUD per selezionare la stanza da piazzare
     private float prefabButtonHeight = 100;
     private float prefabButtonWidth = 200;
@@ -60,14 +63,36 @@ public class RoomPlacer : EditorWindow
 
     private void OnGUI()
     {
+        // Dichiarazione GUIStyle utilizzati
+        GUIStyle sectionTitle = new GUIStyle();
+        sectionTitle.fontSize = 30;
+        sectionTitle.fontStyle = FontStyle.Bold;
+        sectionTitle.alignment = TextAnchor.MiddleCenter;
+        sectionTitle.normal.textColor = Color.white;
+
+        GUIStyle buttonStyle = new GUIStyle(GUI.skin.button);
+        buttonStyle.fontSize = 20;
+        buttonStyle.fontStyle = FontStyle.Bold;
+        buttonStyle.alignment = TextAnchor.MiddleCenter;
+        buttonStyle.fixedHeight = editorButtonHeight;
+
+        GUIStyle subsectionTitle = new GUIStyle(GUI.skin.label);
+        subsectionTitle.fontSize = 22;
+        subsectionTitle.fontStyle = FontStyle.Bold;
+        subsectionTitle.alignment = TextAnchor.MiddleCenter;
+
+        GUIStyle fieldStyle = new GUIStyle(GUI.skin.textField);
+        fieldStyle.alignment = TextAnchor.MiddleCenter;
+
         GUILayout.Space(10f);
-        GUILayout.Label("Room Placer", EditorStyles.boldLabel);
+        GUILayout.Label("Room Placer", sectionTitle);
+        EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
         GUILayout.Space(10f);
 
         // Se la placement mode è disattiva
         if (!isPlacementMode)
         {
-            if (GUILayout.Button("Enable Placement Mode"))
+            if (GUILayout.Button("Enable Placement Mode", buttonStyle))
             {
                 isPlacementMode = true;
                 SceneView.duringSceneGui += OnSceneGUI;
@@ -78,7 +103,7 @@ public class RoomPlacer : EditorWindow
         // se la placement mode è attiva
         else
         {
-            if (GUILayout.Button("Disable Placement Mode"))
+            if (GUILayout.Button("Disable Placement Mode", buttonStyle))
             {
                 isPlacementMode = false;
                 lastSelectIndex = int.MinValue;
@@ -90,22 +115,42 @@ public class RoomPlacer : EditorWindow
 
             GUILayout.Space(10f);
 
-            if (GUILayout.Button("Refresh")) ScanFolders();
+            if (GUILayout.Button("Refresh", buttonStyle)) ScanFolders();
 
             GUILayout.Space(10f);
 
+            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+            GUILayout.Label("Set the placement range", subsectionTitle);
+            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+
+            GUILayout.Space(10f);
+
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
             radiusVisibility = EditorGUILayout.Toggle("View Snap Radius", radiusVisibility);
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndHorizontal();
 
             GUILayout.Space(10f);
 
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
             snapRadius = EditorGUILayout.FloatField("Snap Radius", snapRadius);
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndHorizontal();
+
+            GUILayout.Space(10f);
+
+            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
+            GUILayout.Label("Select rooms by number of doors", subsectionTitle);
+            EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
 
             GUILayout.Space(10f);
 
             // pulsanti di selezione categoria
             foreach (CategoryData cat in categories)
             {
-                if (GUILayout.Button(cat.name))
+                if (GUILayout.Button(cat.name, buttonStyle))
                 {
                     selectedCategory = cat;
                     lastSelectIndex = int.MinValue;
@@ -115,10 +160,19 @@ public class RoomPlacer : EditorWindow
 
             GUILayout.Space(10f);
 
-            if(selectedPrefab != null)
-                EditorGUILayout.LabelField($"Currently Selected Prefab: {selectedPrefab.name}");
+
+            EditorGUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            if (selectedPrefab != null)
+            {
+                string labelText = $"Currently Selected Prefab: {selectedPrefab.name}";
+                float labelWidth = GUI.skin.label.CalcSize(new GUIContent(labelText)).x;
+                EditorGUILayout.LabelField(labelText, GUILayout.Width(labelWidth));
+            }
             else
-                EditorGUILayout.LabelField($"Currently Selected Prefab: None");
+                EditorGUILayout.LabelField($"Currently Selected Prefab: None", GUILayout.ExpandWidth(true));
+            GUILayout.FlexibleSpace();
+            EditorGUILayout.EndHorizontal();
 
             GUILayout.Space(10f);
         }
@@ -176,7 +230,10 @@ public class RoomPlacer : EditorWindow
             // quando clicco sul pulsante del prefab, cambio il selezionato e consumo l'input
             if (GUILayout.Button(content, GUILayout.Width(prefabButtonWidth), GUILayout.Height(prefabButtonHeight)))
             {
-                // Debug.Log($"Cliccato su: {selectedCategory.prefabNames[i]}");
+                // se sta piazzando, distruggi la preview precedente
+                if (isPlacing) ClearPreview();
+
+                // cambia selezione e usa input
                 selectedPrefab = asset;
                 lastSelectIndex = i;
                 Repaint();
