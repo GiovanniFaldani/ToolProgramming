@@ -84,6 +84,7 @@ public class RoomPlacer : EditorWindow
         GUIStyle fieldStyle = new GUIStyle(GUI.skin.textField);
         fieldStyle.alignment = TextAnchor.MiddleCenter;
 
+        // inizio layout
         GUILayout.Space(10f);
         GUILayout.Label("Room Placer", sectionTitle);
         EditorGUILayout.LabelField("", GUI.skin.horizontalSlider);
@@ -161,8 +162,10 @@ public class RoomPlacer : EditorWindow
             GUILayout.Space(10f);
 
 
+            // fit del testo nel label a larghezza arbitratia
             EditorGUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
+
             if (selectedPrefab != null)
             {
                 string labelText = $"Currently Selected Prefab: {selectedPrefab.name}";
@@ -171,6 +174,7 @@ public class RoomPlacer : EditorWindow
             }
             else
                 EditorGUILayout.LabelField($"Currently Selected Prefab: None", GUILayout.ExpandWidth(true));
+
             GUILayout.FlexibleSpace();
             EditorGUILayout.EndHorizontal();
 
@@ -188,12 +192,14 @@ public class RoomPlacer : EditorWindow
         if (!isPlacementMode || selectedCategory == null)
             return;
 
+        // messaggio di errore
         if (categories.Count <= 0)
         {
             EditorGUILayout.HelpBox("No prefab found in the specified folder", MessageType.Info);
             return;
         }
 
+        // comincio a disegnare in scena
         Handles.BeginGUI();
 
         // mi prendo l'evento dell'input
@@ -250,7 +256,7 @@ public class RoomPlacer : EditorWindow
 
         GUILayout.Space(10f);
 
-        // annulla preview o esegue undo con tasto UI
+        // annulla preview o esegue undo (ctrl+z) con tasto UI
         if (GUILayout.Button("Undo", GUILayout.Width(prefabButtonWidth), GUILayout.Height(prefabButtonHeight)))
         {
             if(isPlacing)
@@ -264,7 +270,7 @@ public class RoomPlacer : EditorWindow
             }
         }
 
-        // annulla il piazzamento con ctrl+z per consistenza con tasto undo
+        // annulla preview con ctrl+z per consistenza con tasto undo
         if (e.type == EventType.KeyDown && e.control && e.keyCode == KeyCode.Z && isPlacing)
         {
             ClearPreview();
@@ -279,7 +285,7 @@ public class RoomPlacer : EditorWindow
         // se preview è istanziata, seguire la posizione del mouse, display raggio snap e funzione di snap
         if (previewObject == null) return;
 
-        // raggio che parte dal mouse
+        // raggio che parte dal mouse e interseca piano ad altezza zero per seguire posizione
         Ray ray = HandleUtility.GUIPointToWorldRay(e.mousePosition);
 
         Plane roomLevel = new Plane(Vector3.up, Vector3.zero);
@@ -397,6 +403,7 @@ public class RoomPlacer : EditorWindow
         // collidersInRange non deve contenere collider della preview, sottrai il set previewColliders
         collidersInRange.ExceptWith(previewColliders);
 
+        // per ogni collider esterno con tag FreeDoor
         foreach (Collider otherCol in collidersInRange)
         {
             if (!otherCol.gameObject.CompareTag("FreeDoor")) continue;
@@ -429,6 +436,7 @@ public class RoomPlacer : EditorWindow
             return new List<Collider>{ myFreeCollider, otherCol };
         }
 
+        // ritorna lista vuota = nulla è snappabile
         return new List<Collider>();
     }
 
@@ -446,7 +454,7 @@ public class RoomPlacer : EditorWindow
 
         foreach(Collider col in snappedColliders)
         {
-            // registra il cambiamento di tag nello stesso gruppo di Undo così la porta torna libera
+            // registra il cambiamento di tag nello stesso gruppo di Undo così la porta torna libera con ctrl+z
             Undo.RegisterCompleteObjectUndo(col, "Spawn Room prefab");
             col.gameObject.tag = "TakenDoor";
         }
